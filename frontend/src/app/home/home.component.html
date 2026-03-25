@@ -1,0 +1,217 @@
+<!-- ── NAVBAR ─────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a routerLink="/home" class="nav-brand">
+      <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+        <rect width="48" height="48" rx="10" fill="#e94560"/>
+        <path d="M14 24L24 14L34 24L24 34L14 24Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="24" cy="24" r="4" fill="white"/>
+      </svg>
+      <span>ShopNova</span>
+    </a>
+
+    <div class="nav-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Buscar productos..." [(ngModel)]="searchQuery"/>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Visitante -->
+      <ng-container *ngIf="!isAuthenticated">
+        <a routerLink="/login" class="btn-nav-outline">Ingresar</a>
+        <a routerLink="/register" class="btn-nav-solid">Registrarse</a>
+      </ng-container>
+
+      <!-- Cliente -->
+      <ng-container *ngIf="isAuthenticated && rol === 'cliente'">
+        <span class="nav-greeting">Hola, <strong>{{ nombre }}</strong></span>
+        <button class="btn-cart" (click)="showCart = !showCart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </button>
+        <button class="btn-nav-ghost" (click)="logout()">Salir</button>
+      </ng-container>
+
+      <!-- Admin -->
+      <ng-container *ngIf="isAuthenticated && rol === 'admin'">
+        <span class="nav-greeting nav-admin">⚙ <strong>{{ nombre }}</strong></span>
+        <a routerLink="/admin" class="btn-nav-outline">Panel Admin</a>
+        <button class="btn-nav-ghost" (click)="logout()">Salir</button>
+      </ng-container>
+
+      <!-- Moderador -->
+      <ng-container *ngIf="isAuthenticated && rol === 'moderador'">
+        <span class="nav-greeting nav-mod">◈ <strong>{{ nombre }}</strong></span>
+        <a routerLink="/gestion" class="btn-nav-outline">Gestión</a>
+        <button class="btn-nav-ghost" (click)="logout()">Salir</button>
+      </ng-container>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ───────────────────────────────────────────────────────── -->
+<section class="hero" *ngIf="!isAuthenticated">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">Tecnología al mejor precio</p>
+    <h1 class="hero-title">Equipa tu setup<br/><span>con lo mejor</span></h1>
+    <p class="hero-sub">Monitores, periféricos y componentes de alta gama para profesionales y gamers.</p>
+    <div class="hero-ctas">
+      <a routerLink="/register" class="cta-primary">Crear cuenta gratis</a>
+      <a routerLink="/login" class="cta-secondary">Ya tengo cuenta</a>
+    </div>
+  </div>
+  <div class="hero-deco">
+    <div class="hero-card hc1">🖥️<span>Monitor 4K</span></div>
+    <div class="hero-card hc2">🎮<span>GPU RTX</span></div>
+    <div class="hero-card hc3">⌨️<span>Teclado Mec.</span></div>
+  </div>
+</section>
+
+<!-- ── WELCOME BAR (logueado) ─────────────────────────────────────── -->
+<div class="welcome-bar" *ngIf="isAuthenticated">
+  <span>👋 Bienvenido de nuevo, <strong>{{ nombre }}</strong></span>
+  <span class="role-badge" [class.badge-admin]="rol==='admin'" [class.badge-mod]="rol==='moderador'">
+    {{ rol }}
+  </span>
+</div>
+
+<!-- ── CATEGORÍAS ─────────────────────────────────────────────────── -->
+<section class="categories-bar">
+  <div class="section-inner">
+    <button
+      *ngFor="let cat of categories"
+      class="cat-btn"
+      [class.active]="selectedCategory === cat.key"
+      (click)="selectedCategory = cat.key">
+      {{ cat.label }}
+    </button>
+  </div>
+</section>
+
+<!-- ── PRODUCTOS ──────────────────────────────────────────────────── -->
+<section class="products-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>{{ selectedCategory === 'todos' ? 'Todos los productos' : categories[categories.findIndex(c=>c.key===selectedCategory)].label }}</h2>
+      <span class="product-count">{{ filteredProducts.length }} productos</span>
+    </div>
+
+    <div class="products-grid">
+      <div class="product-card" *ngFor="let product of filteredProducts">
+        <div class="product-badge" *ngIf="product.badge">{{ product.badge }}</div>
+        <div class="product-image">{{ product.image }}</div>
+        <div class="product-info">
+          <p class="product-category">{{ product.category }}</p>
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-desc">{{ product.description }}</p>
+          <div class="product-footer">
+            <span class="product-price">{{ formatPrice(product.price) }}</span>
+            <button class="btn-add" (click)="addToCart(product)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredProducts.length === 0">
+      <span>🔍</span>
+      <p>No se encontraron productos para "{{ searchQuery }}"</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CART SIDEBAR ───────────────────────────────────────────────── -->
+<div class="cart-overlay" *ngIf="showCart" (click)="showCart = false"></div>
+<div class="cart-sidebar" [class.open]="showCart">
+  <div class="cart-header">
+    <h3>Tu carrito</h3>
+    <button class="cart-close" (click)="showCart = false">✕</button>
+  </div>
+
+  <div class="cart-empty" *ngIf="cart.length === 0">
+    <span>🛒</span>
+    <p>Tu carrito está vacío</p>
+  </div>
+
+  <div class="cart-items" *ngIf="cart.length > 0">
+    <div class="cart-item" *ngFor="let item of cart">
+      <span class="ci-icon">{{ item.product.image }}</span>
+      <div class="ci-info">
+        <p class="ci-name">{{ item.product.name }}</p>
+        <p class="ci-price">{{ formatPrice(item.product.price) }} x {{ item.qty }}</p>
+      </div>
+      <button class="ci-remove" (click)="removeFromCart(item.product.id)">✕</button>
+    </div>
+  </div>
+
+  <div class="cart-footer" *ngIf="cart.length > 0">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong>{{ formatPrice(cartTotal) }}</strong>
+    </div>
+    <button class="btn-checkout">Proceder al pago</button>
+  </div>
+</div>
+
+<!-- ── MODAL LOGIN ────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showLoginModal" (click)="closeModal()"></div>
+<div class="modal" *ngIf="showLoginModal">
+  <button class="modal-close" (click)="closeModal()">✕</button>
+  <div class="modal-icon">🔐</div>
+  <h3 class="modal-title">Inicia sesión para continuar</h3>
+  <p class="modal-sub">Necesitas una cuenta para agregar productos al carrito</p>
+
+  <div class="error-alert" *ngIf="modalError">
+    <span>!</span><span>{{ modalError }}</span>
+  </div>
+
+  <div class="field-group">
+    <div class="input-wrapper">
+      <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M2 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" class="form-input" placeholder="Usuario"
+        [(ngModel)]="modalUsername" name="modalUsername"/>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <div class="input-wrapper">
+      <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input [type]="modalShowPassword ? 'text' : 'password'" class="form-input"
+        placeholder="Contraseña" [(ngModel)]="modalPassword" name="modalPassword"/>
+      <button type="button" class="toggle-password" (click)="toggleModalPassword()" tabindex="-1">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <button class="btn-modal-login" (click)="modalLogin()" [disabled]="modalLoading">
+    <span *ngIf="!modalLoading">Ingresar</span>
+    <span *ngIf="modalLoading" class="spinner-wrapper">
+      <span class="spinner"></span>Verificando...
+    </span>
+  </button>
+
+  <p class="modal-hint">
+    ¿No tienes cuenta? <a routerLink="/register" (click)="closeModal()" class="modal-link">Regístrate gratis</a>
+  </p>
+</div>

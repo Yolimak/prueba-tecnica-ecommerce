@@ -1,0 +1,367 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.login-wrapper {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── LEFT BRAND PANEL ─────────────────────── */
+.brand-panel {
+  position: relative;
+  width: 45%;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 3rem;
+}
+
+.brand-content {
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+.brand-logo {
+  margin-bottom: 1.25rem;
+}
+
+.brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: white;
+  margin-bottom: 0.4rem;
+}
+
+.brand-tagline {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 3rem;
+  font-weight: 300;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.feature-icon {
+  color: #e94560;
+  font-size: 0.75rem;
+}
+
+/* Decorative rings */
+.brand-decoration {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.deco-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ring-1 {
+  width: 380px;
+  height: 380px;
+  bottom: -80px;
+  right: -80px;
+}
+
+.ring-2 {
+  width: 260px;
+  height: 260px;
+  bottom: -20px;
+  right: -20px;
+}
+
+.ring-3 {
+  width: 180px;
+  height: 180px;
+  top: 40px;
+  left: -60px;
+}
+
+.form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafaf8;
+  padding: 2rem;
+  position: relative;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-header {
+  margin-bottom: 2.5rem;
+}
+
+.form-subtitle {
+  font-size: 0.875rem;
+  color: #e94560;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.form-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.02em;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: #fff0f0;
+  border: 1px solid #fcc;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #c0392b;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.error-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #555;
+  letter-spacing: 0.01em;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  color: #aaa;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.8rem 3rem 0.8rem 2.75rem;
+  border: 1.5px solid #e8e8e4;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-family: 'DM Sans', sans-serif;
+  color: #1a1a2e;
+  background: white;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+
+  &::placeholder {
+    color: #bbb;
+    font-weight: 300;
+  }
+
+  &:focus {
+    border-color: #0f3460;
+    box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+  }
+
+  &.input-error {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+  }
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+
+  &:hover {
+    color: #555;
+  }
+}
+
+.submit-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.9rem;
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover:not(:disabled) {
+    background: #0f3460;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    background: #0f3460;
+  }
+}
+
+.spinner-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+.form-hint {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #aaa;
+
+  strong {
+    color: #555;
+    font-weight: 500;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
+
+  .brand-panel {
+    width: 100%;
+    min-height: 220px;
+    padding: 2rem;
+  }
+
+  .brand-name {
+    font-size: 2rem;
+  }
+
+  .brand-features {
+    display: none;
+  }
+
+  .deco-ring { display: none; }
+}
+.form-link { color: #0f3460; font-weight: 500; text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.back-btn {
+  position: absolute;
+  top: 1.5rem;
+  left: 2rem;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: #999;
+  text-decoration: none;
+  transition: color 0.15s;
+  &:hover { color: #1a1a2e; }
+}
+ 
+.form-link {
+  color: #0f3460;
+  font-weight: 500;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+ 

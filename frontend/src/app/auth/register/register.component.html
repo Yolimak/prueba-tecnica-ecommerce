@@ -1,0 +1,124 @@
+<div class="login-wrapper">
+  <div class="brand-panel">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="white" fill-opacity="0.12"/>
+          <path d="M14 24L24 14L34 24L24 34L14 24Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="24" cy="24" r="4" fill="white"/>
+        </svg>
+      </div>
+      <h1 class="brand-name">ShopNova</h1>
+      <p class="brand-tagline">Únete a nuestra comunidad</p>
+      <div class="brand-features">
+        <div class="feature-item"><span class="feature-icon">◈</span><span>Crea tu cuenta gratis</span></div>
+        <div class="feature-item"><span class="feature-icon">◈</span><span>Accede a miles de productos</span></div>
+        <div class="feature-item"><span class="feature-icon">◈</span><span>Compras 100% seguras</span></div>
+      </div>
+    </div>
+    <div class="brand-decoration">
+      <div class="deco-ring ring-1"></div>
+      <div class="deco-ring ring-2"></div>
+      <div class="deco-ring ring-3"></div>
+    </div>
+  </div>
+
+  <div class="form-panel">
+    <div class="back-btn">
+      <a routerLink="/home" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Volver a la tienda
+      </a>
+    </div>
+    <div class="form-container">
+      <div class="form-header">
+        <p class="form-subtitle">Empieza hoy</p>
+        <h2 class="form-title">Crea tu cuenta</h2>
+      </div>
+
+      <form class="login-form" (ngSubmit)="onSubmit()">
+
+        <div class="error-alert" *ngIf="errorMessage">
+          <span class="error-icon">!</span>
+          <span>{{ errorMessage }}</span>
+        </div>
+        <div class="success-alert" *ngIf="successMessage">
+          <span class="success-icon">✓</span>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <!-- Nombre completo -->
+        <div class="field-group">
+          <label class="field-label">Nombre completo</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M2 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" class="form-input" placeholder="Ej: Juan Pérez"
+              [(ngModel)]="nombre" name="nombre" [class.input-error]="errorMessage"/>
+          </div>
+        </div>
+
+        <!-- Usuario -->
+        <div class="field-group">
+          <label class="field-label">Usuario</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 2l4 4-4 4M8 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <input type="text" class="form-input" placeholder="Elige un nombre de usuario"
+              [(ngModel)]="username" name="username" [class.input-error]="errorMessage"/>
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="field-group">
+          <label class="field-label">Contraseña</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input [type]="showPassword ? 'text' : 'password'" class="form-input"
+              placeholder="Mínimo 4 caracteres" [(ngModel)]="password" name="password"
+              [class.input-error]="errorMessage"/>
+            <button type="button" class="toggle-password" (click)="togglePassword()" tabindex="-1">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="field-group">
+          <label class="field-label">Confirmar contraseña</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="password" class="form-input" placeholder="Repite tu contraseña"
+              [(ngModel)]="confirmPassword" name="confirmPassword" [class.input-error]="errorMessage"/>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Crear cuenta</span>
+          <span *ngIf="isLoading" class="spinner-wrapper">
+            <span class="spinner"></span>Creando cuenta...
+          </span>
+        </button>
+
+      </form>
+
+      <p class="form-hint">
+        ¿Ya tienes cuenta? <a routerLink="/login" class="form-link">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+</div>

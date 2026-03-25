@@ -1,0 +1,113 @@
+<div class="login-wrapper">
+  <!-- Left panel: decorative -->
+  <div class="brand-panel">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="white" fill-opacity="0.12"/>
+          <path d="M14 24L24 14L34 24L24 34L14 24Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="24" cy="24" r="4" fill="white"/>
+        </svg>
+      </div>
+      <h1 class="brand-name">ShopNova</h1>
+      <p class="brand-tagline">Tu marketplace de confianza</p>
+      <div class="brand-features">
+        <div class="feature-item"><span class="feature-icon">◈</span><span>Miles de productos disponibles</span></div>
+        <div class="feature-item"><span class="feature-icon">◈</span><span>Pagos seguros y confiables</span></div>
+        <div class="feature-item"><span class="feature-icon">◈</span><span>Envíos rápidos a todo el país</span></div>
+      </div>
+    </div>
+    <div class="brand-decoration">
+      <div class="deco-ring ring-1"></div>
+      <div class="deco-ring ring-2"></div>
+      <div class="deco-ring ring-3"></div>
+    </div>
+  </div>
+
+  <!-- Right panel: form -->
+  <div class="form-panel">
+
+    <!-- Flecha volver -->
+    <div class="back-btn">
+      <a routerLink="/home" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Volver a la tienda
+      </a>
+    </div>
+
+    <div class="form-container">
+      <div class="form-header">
+        <p class="form-subtitle">Bienvenido de vuelta</p>
+        <h2 class="form-title">Inicia sesión</h2>
+      </div>
+
+      <form class="login-form" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+
+        <!-- Error message -->
+        <div class="error-alert" *ngIf="errorMessage">
+          <span class="error-icon">!</span>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <!-- Username field -->
+        <div class="field-group">
+          <label for="username" class="field-label">Usuario</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M2 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input
+              id="username" type="text" class="form-input"
+              placeholder="Tu nombre de usuario"
+              [(ngModel)]="username" name="username"
+              autocomplete="username"
+              [class.input-error]="errorMessage"/>
+          </div>
+        </div>
+
+        <!-- Password field -->
+        <div class="field-group">
+          <label for="password" class="field-label">Contraseña</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-input" placeholder="Tu contraseña"
+              [(ngModel)]="password" name="password"
+              autocomplete="current-password"
+              [class.input-error]="errorMessage"/>
+            <button type="button" class="toggle-password" (click)="togglePassword()" tabindex="-1">
+              <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 2l12 12M6.5 6.5A2 2 0 0010 10M4.2 4.2C2.8 5.2 2 6.9 2 8c0 0 2.5 5 6 5a6.2 6.2 0 003.4-1M6.5 3.1A6.5 6.5 0 0114 8s-.8 1.8-2.2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit button -->
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Ingresar</span>
+          <span *ngIf="isLoading" class="spinner-wrapper">
+            <span class="spinner"></span>Verificando...
+          </span>
+        </button>
+
+      </form>
+
+      <p class="form-hint">
+        ¿No tienes cuenta? <a routerLink="/register" class="form-link">Regístrate</a>
+      </p>
+    </div>
+  </div>
+</div>
