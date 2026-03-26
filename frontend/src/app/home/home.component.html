@@ -9,7 +9,6 @@
       </svg>
       <span>ShopNova</span>
     </a>
-
     <div class="nav-search">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
@@ -17,17 +16,14 @@
       </svg>
       <input type="text" placeholder="Buscar productos..." [(ngModel)]="searchQuery"/>
     </div>
-
     <div class="nav-actions">
-      <!-- Visitante -->
       <ng-container *ngIf="!isAuthenticated">
         <a routerLink="/login" class="btn-nav-outline">Ingresar</a>
         <a routerLink="/register" class="btn-nav-solid">Registrarse</a>
       </ng-container>
-
-      <!-- Cliente -->
       <ng-container *ngIf="isAuthenticated && rol === 'cliente'">
         <span class="nav-greeting">Hola, <strong>{{ nombre }}</strong></span>
+        <a routerLink="/orders" class="btn-nav-outline">Mis pedidos</a>
         <button class="btn-cart" (click)="showCart = !showCart">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -38,18 +34,14 @@
         </button>
         <button class="btn-nav-ghost" (click)="logout()">Salir</button>
       </ng-container>
-
-      <!-- Admin -->
       <ng-container *ngIf="isAuthenticated && rol === 'admin'">
         <span class="nav-greeting nav-admin">⚙ <strong>{{ nombre }}</strong></span>
         <a routerLink="/admin" class="btn-nav-outline">Panel Admin</a>
         <button class="btn-nav-ghost" (click)="logout()">Salir</button>
       </ng-container>
-
-      <!-- Moderador -->
       <ng-container *ngIf="isAuthenticated && rol === 'moderador'">
         <span class="nav-greeting nav-mod">◈ <strong>{{ nombre }}</strong></span>
-        <a routerLink="/gestion" class="btn-nav-outline">Gestión</a>
+        <a routerLink="/admin" class="btn-nav-outline">Gestión</a>
         <button class="btn-nav-ghost" (click)="logout()">Salir</button>
       </ng-container>
     </div>
@@ -68,29 +60,24 @@
     </div>
   </div>
   <div class="hero-deco">
-    <div class="hero-card hc1">🖥️<span>Monitor 4K</span></div>
-    <div class="hero-card hc2">🎮<span>GPU RTX</span></div>
-    <div class="hero-card hc3">⌨️<span>Teclado Mec.</span></div>
+    <div class="hero-card">🖥️<span>Monitor 4K</span></div>
+    <div class="hero-card">🎮<span>GPU RTX</span></div>
+    <div class="hero-card">⌨️<span>Teclado Mec.</span></div>
   </div>
 </section>
 
-<!-- ── WELCOME BAR (logueado) ─────────────────────────────────────── -->
+<!-- ── WELCOME BAR ─────────────────────────────────────────────────── -->
 <div class="welcome-bar" *ngIf="isAuthenticated">
   <span>👋 Bienvenido de nuevo, <strong>{{ nombre }}</strong></span>
-  <span class="role-badge" [class.badge-admin]="rol==='admin'" [class.badge-mod]="rol==='moderador'">
-    {{ rol }}
-  </span>
+  <span class="role-badge" [class.badge-admin]="rol==='admin'" [class.badge-mod]="rol==='moderador'">{{ rol }}</span>
 </div>
 
 <!-- ── CATEGORÍAS ─────────────────────────────────────────────────── -->
 <section class="categories-bar">
   <div class="section-inner">
-    <button
-      *ngFor="let cat of categories"
-      class="cat-btn"
-      [class.active]="selectedCategory === cat.key"
-      (click)="selectedCategory = cat.key">
-      {{ cat.label }}
+    <button class="cat-btn" [class.active]="selectedCategory === 0" (click)="onCategoryChange(0)">Todos</button>
+    <button *ngFor="let cat of categories" class="cat-btn" [class.active]="selectedCategory === cat.id" (click)="onCategoryChange(cat.id)">
+      {{ cat.cod_name }}
     </button>
   </div>
 </section>
@@ -99,34 +86,44 @@
 <section class="products-section">
   <div class="section-inner">
     <div class="section-header">
-      <h2>{{ selectedCategory === 'todos' ? 'Todos los productos' : categories[categories.findIndex(c=>c.key===selectedCategory)].label }}</h2>
+      <h2>{{ selectedCategory === 0 ? 'Todos los productos' : categories[categories.findIndex(c=>c.id===selectedCategory)]?.cod_name }}</h2>
       <span class="product-count">{{ filteredProducts.length }} productos</span>
     </div>
-
-    <div class="products-grid">
+    <div class="loading-grid" *ngIf="isLoading">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+    <div class="products-grid" *ngIf="!isLoading">
       <div class="product-card" *ngFor="let product of filteredProducts">
-        <div class="product-badge" *ngIf="product.badge">{{ product.badge }}</div>
-        <div class="product-image">{{ product.image }}</div>
+        <div class="product-badge" *ngIf="product.cod_tag > 1" [class]="getTagClass(product.cod_tag)">
+          {{ getTagLabel(product.cod_tag) }}
+        </div>
+        <div class="product-image">
+          <img *ngIf="product.img_product" [src]="product.img_product" [alt]="product.des_product"/>
+          <span *ngIf="!product.img_product">📦</span>
+        </div>
         <div class="product-info">
-          <p class="product-category">{{ product.category }}</p>
-          <h3 class="product-name">{{ product.name }}</h3>
-          <p class="product-desc">{{ product.description }}</p>
+          <p class="product-category">{{ product.category_name }}</p>
+          <h3 class="product-name">{{ product.des_product }}</h3>
+          <p class="product-desc">{{ product.def_product }}</p>
           <div class="product-footer">
-            <span class="product-price">{{ formatPrice(product.price) }}</span>
-            <button class="btn-add" (click)="addToCart(product)">
+            <div>
+              <span class="product-price">{{ formatPrice(product.cod_value) }}</span>
+              <span class="product-iva">+ IVA {{ product.cod_iva }}%</span>
+            </div>
+            <button class="btn-add" (click)="addToCart(product)" [disabled]="product.status === 2 || cartLoading">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Agregar
+              {{ product.status === 2 ? 'Agotado' : 'Agregar' }}
             </button>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="empty-state" *ngIf="filteredProducts.length === 0">
+    <div class="empty-state" *ngIf="!isLoading && filteredProducts.length === 0">
       <span>🔍</span>
-      <p>No se encontraron productos para "{{ searchQuery }}"</p>
+      <p *ngIf="searchQuery">No se encontraron productos para "{{ searchQuery }}"</p>
+      <p *ngIf="!searchQuery">No hay productos en esta categoría</p>
     </div>
   </div>
 </section>
@@ -136,65 +133,75 @@
 <div class="cart-sidebar" [class.open]="showCart">
   <div class="cart-header">
     <h3>Tu carrito</h3>
-    <button class="cart-close" (click)="showCart = false">✕</button>
+    <div class="cart-header-actions">
+      <button class="btn-clear" *ngIf="cartItems.length > 0" (click)="clearCart()">Vaciar</button>
+      <button class="cart-close" (click)="showCart = false">✕</button>
+    </div>
   </div>
-
-  <div class="cart-empty" *ngIf="cart.length === 0">
-    <span>🛒</span>
-    <p>Tu carrito está vacío</p>
+  <div class="cart-empty" *ngIf="cartItems.length === 0">
+    <span>🛒</span><p>Tu carrito está vacío</p>
   </div>
-
-  <div class="cart-items" *ngIf="cart.length > 0">
-    <div class="cart-item" *ngFor="let item of cart">
-      <span class="ci-icon">{{ item.product.image }}</span>
-      <div class="ci-info">
-        <p class="ci-name">{{ item.product.name }}</p>
-        <p class="ci-price">{{ formatPrice(item.product.price) }} x {{ item.qty }}</p>
+  <div class="cart-items" *ngIf="cartItems.length > 0">
+    <div class="cart-item" *ngFor="let item of cartItems">
+      <div class="ci-img">
+        <img *ngIf="item.img_product" [src]="item.img_product" alt="img"/>
+        <span *ngIf="!item.img_product">📦</span>
       </div>
-      <button class="ci-remove" (click)="removeFromCart(item.product.id)">✕</button>
+      <div class="ci-info">
+        <p class="ci-name">{{ item.des_product }}</p>
+        <p class="ci-cat">{{ item.category_name }}</p>
+        <div class="ci-qty">
+          <button class="qty-btn" (click)="updateQty(item, -1)">−</button>
+          <span>{{ item.quantity }}</span>
+          <button class="qty-btn" (click)="updateQty(item, 1)">+</button>
+        </div>
+        <div class="ci-prices">
+          <span class="ci-subtotal">{{ formatPrice(item.subtotal_item) }}</span>
+          <span class="ci-iva">+ IVA {{ formatPrice(item.iva_item) }}</span>
+          <span class="ci-total">= {{ formatPrice(item.total_item) }}</span>
+        </div>
+      </div>
+      <button class="ci-remove" (click)="removeItem(item)">✕</button>
     </div>
   </div>
-
-  <div class="cart-footer" *ngIf="cart.length > 0">
-    <div class="cart-total">
-      <span>Total</span>
-      <strong>{{ formatPrice(cartTotal) }}</strong>
+  <div class="cart-footer" *ngIf="cartItems.length > 0">
+    <div class="cart-resumen">
+      <div class="resumen-row"><span>Subtotal</span><span>{{ formatPrice(cartResumen.subtotal) }}</span></div>
+      <div class="resumen-row"><span>IVA</span><span>{{ formatPrice(cartResumen.total_iva) }}</span></div>
+      <div class="resumen-row total"><strong>Total</strong><strong>{{ formatPrice(cartResumen.total) }}</strong></div>
     </div>
-    <button class="btn-checkout">Proceder al pago</button>
+    <button class="btn-checkout" (click)="openCheckout()">Proceder al pago</button>
   </div>
 </div>
+<!-- ── FIN CART SIDEBAR ───────────────────────────────────────────── -->
 
 <!-- ── MODAL LOGIN ────────────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="showLoginModal" (click)="closeModal()"></div>
-<div class="modal" *ngIf="showLoginModal">
+<div class="modal" *ngIf="showLoginModal" (click)="$event.stopPropagation()">
   <button class="modal-close" (click)="closeModal()">✕</button>
   <div class="modal-icon">🔐</div>
   <h3 class="modal-title">Inicia sesión para continuar</h3>
   <p class="modal-sub">Necesitas una cuenta para agregar productos al carrito</p>
-
   <div class="error-alert" *ngIf="modalError">
-    <span>!</span><span>{{ modalError }}</span>
+    <span class="error-icon">!</span>
+    <span>{{ modalError }}</span>
   </div>
-
   <div class="field-group">
     <div class="input-wrapper">
       <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
         <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
         <path d="M2 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <input type="text" class="form-input" placeholder="Usuario"
-        [(ngModel)]="modalUsername" name="modalUsername"/>
+      <input type="text" class="form-input" placeholder="Usuario" [(ngModel)]="modalUsername"/>
     </div>
   </div>
-
   <div class="field-group">
     <div class="input-wrapper">
       <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5"/>
         <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <input [type]="modalShowPassword ? 'text' : 'password'" class="form-input"
-        placeholder="Contraseña" [(ngModel)]="modalPassword" name="modalPassword"/>
+      <input [type]="modalShowPassword ? 'text' : 'password'" class="form-input" placeholder="Contraseña" [(ngModel)]="modalPassword"/>
       <button type="button" class="toggle-password" (click)="toggleModalPassword()" tabindex="-1">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.5"/>
@@ -203,15 +210,48 @@
       </button>
     </div>
   </div>
-
   <button class="btn-modal-login" (click)="modalLogin()" [disabled]="modalLoading">
     <span *ngIf="!modalLoading">Ingresar</span>
-    <span *ngIf="modalLoading" class="spinner-wrapper">
-      <span class="spinner"></span>Verificando...
-    </span>
+    <span *ngIf="modalLoading" class="spinner-wrapper"><span class="spinner"></span>Verificando...</span>
   </button>
-
   <p class="modal-hint">
     ¿No tienes cuenta? <a routerLink="/register" (click)="closeModal()" class="modal-link">Regístrate gratis</a>
   </p>
 </div>
+<!-- ── FIN MODAL LOGIN ─────────────────────────────────────────────── -->
+
+<!-- ── CHECKOUT MODAL ────────────────────────────────────────────── -->
+<div class="checkout-overlay" *ngIf="showCheckout" (click)="closeCheckout()"></div>
+<div class="checkout-modal" *ngIf="showCheckout" (click)="$event.stopPropagation()">
+  <button class="modal-close" (click)="closeCheckout()">✕</button>
+  <div class="modal-icon">🛍️</div>
+  <h3 class="modal-title">Confirmar pedido</h3>
+  <p class="modal-sub">Total: <strong>{{ formatPrice(cartResumen.total) }}</strong> · {{ cartResumen.cantidad_items }} productos</p>
+  <div class="field-group">
+    <label style="font-size:0.8rem;font-weight:500;color:#555;display:block;margin-bottom:0.4rem">Dirección de envío <span style="color:#e94560">*</span></label>
+    <input type="text" class="form-input" style="padding:0.75rem" placeholder="Calle, número, ciudad, departamento" [(ngModel)]="checkoutForm.def_address"/>
+  </div>
+  <div class="field-group">
+    <label style="font-size:0.8rem;font-weight:500;color:#555;display:block;margin-bottom:0.4rem">Método de pago</label>
+    <select class="form-input" style="padding:0.75rem" [(ngModel)]="checkoutForm.cod_payment">
+      <option value="efectivo">Efectivo</option>
+      <option value="tarjeta_credito">Tarjeta de crédito</option>
+      <option value="tarjeta_debito">Tarjeta de débito</option>
+      <option value="transferencia">Transferencia bancaria</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label style="font-size:0.8rem;font-weight:500;color:#555;display:block;margin-bottom:0.4rem">Notas adicionales</label>
+    <textarea class="form-input" style="padding:0.75rem;resize:vertical;min-height:70px" placeholder="Instrucciones especiales..." [(ngModel)]="checkoutForm.notes"></textarea>
+  </div>
+  <div class="cart-resumen" style="background:#f9f9f7;border-radius:10px;padding:1rem;margin-bottom:1rem">
+    <div class="resumen-row"><span>Subtotal</span><span>{{ formatPrice(cartResumen.subtotal) }}</span></div>
+    <div class="resumen-row"><span>IVA</span><span>{{ formatPrice(cartResumen.total_iva) }}</span></div>
+    <div class="resumen-row total"><strong>Total</strong><strong>{{ formatPrice(cartResumen.total) }}</strong></div>
+  </div>
+  <button class="btn-modal-login" style="background:#e94560" (click)="submitOrder()" [disabled]="checkoutLoading">
+    <span *ngIf="!checkoutLoading">Confirmar pedido</span>
+    <span *ngIf="checkoutLoading" class="spinner-wrapper"><span class="spinner"></span>Procesando...</span>
+  </button>
+</div>
+<!-- ── FIN CHECKOUT MODAL ─────────────────────────────────────────── -->  

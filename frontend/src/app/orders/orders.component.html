@@ -1,0 +1,83 @@
+<nav class="navbar">
+  <div class="nav-inner">
+    <a routerLink="/home" class="nav-brand">
+      <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+        <rect width="48" height="48" rx="10" fill="#e94560"/>
+        <path d="M14 24L24 14L34 24L24 34L14 24Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="24" cy="24" r="4" fill="white"/>
+      </svg>
+      <span>ShopNova</span>
+    </a>
+    <div class="nav-center"><h2 class="page-title">Mis Pedidos</h2></div>
+    <a routerLink="/home" class="btn-back">← Volver a la tienda</a>
+  </div>
+</nav>
+
+<div class="orders-page">
+  <div class="orders-inner">
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner-lg"></div>
+      <p>Cargando tus pedidos...</p>
+    </div>
+
+    <div class="empty-orders" *ngIf="!isLoading && orders.length === 0">
+      <span>📦</span>
+      <h3>No tienes pedidos aún</h3>
+      <p>Cuando realices una compra, tus pedidos aparecerán aquí</p>
+      <a routerLink="/home" class="btn-shop">Ir a la tienda</a>
+    </div>
+
+    <div class="orders-list" *ngIf="!isLoading && orders.length > 0">
+      <div class="order-card" *ngFor="let order of orders">
+        <div class="order-header" (click)="toggleOrder(order.id_order)">
+          <div class="order-info">
+            <span class="order-code">{{ order.cod_order }}</span>
+            <span class="order-date">{{ formatDate(order.created_at) }}</span>
+          </div>
+          <div class="order-meta">
+            <span class="order-status" [class]="getStatusClass(order.status)">{{ order.status_label }}</span>
+            <span class="order-total">{{ formatPrice(order.total) }}</span>
+            <span class="order-toggle">{{ expandedOrder === order.id_order ? '▲' : '▼' }}</span>
+          </div>
+        </div>
+
+        <div class="order-body" *ngIf="expandedOrder === order.id_order">
+          <div class="order-details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Dirección de envío</span>
+              <span class="detail-value">{{ order.def_address }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Método de pago</span>
+              <span class="detail-value">{{ order.payment_label }}</span>
+            </div>
+            <div class="detail-item" *ngIf="order.notes">
+              <span class="detail-label">Notas</span>
+              <span class="detail-value">{{ order.notes }}</span>
+            </div>
+          </div>
+
+          <table class="order-table">
+            <thead><tr><th>Producto</th><th>Cant.</th><th>Valor unit.</th><th>Subtotal</th><th>IVA</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of order.items">
+                <td>{{ item.des_product }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ formatPrice(item.cod_value) }}</td>
+                <td>{{ formatPrice(item.subtotal_item) }}</td>
+                <td>{{ formatPrice(item.iva_item) }}</td>
+                <td class="item-total">{{ formatPrice(item.total_item) }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="order-resumen">
+            <span>Subtotal: <strong>{{ formatPrice(order.subtotal) }}</strong></span>
+            <span>IVA: <strong>{{ formatPrice(order.total_iva) }}</strong></span>
+            <span class="resumen-total">Total: <strong>{{ formatPrice(order.total) }}</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

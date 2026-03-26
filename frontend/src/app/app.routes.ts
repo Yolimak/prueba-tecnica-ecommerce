@@ -15,5 +15,15 @@ export const routes: Routes = [
     path: 'home',
     loadComponent: () => import('./home/home.component').then(m => m.HomeComponent)
   },
+  {
+  path: 'orders',
+  loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent),
+  canActivate: [authGuard]
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: 'home' }
 ];

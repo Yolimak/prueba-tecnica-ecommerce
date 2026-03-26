@@ -1,0 +1,447 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a routerLink="/home" class="nav-brand">
+      <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+        <rect width="48" height="48" rx="10" fill="#e94560"/>
+        <path d="M14 24L24 14L34 24L24 34L14 24Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="24" cy="24" r="4" fill="white"/>
+      </svg>
+      <span>ShopNova</span>
+    </a>
+    <div class="nav-center">
+      <span class="panel-label">Panel de Administración</span>
+    </div>
+    <div class="nav-actions">
+      <span class="nav-greeting"><strong>{{ nombre }}</strong></span>
+      <span class="role-badge" [class.badge-admin]="rol==='admin'" [class.badge-mod]="rol==='moderador'">{{ rol }}</span>
+      <a routerLink="/home" class="btn-nav-ghost">← Tienda</a>
+      <button class="btn-nav-ghost red" (click)="logout()">Salir</button>
+    </div>
+  </div>
+</nav>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab-btn" [class.active]="activeTab === 'categories'" (click)="activeTab = 'categories'">📂 Categorías</button>
+    <button class="tab-btn" [class.active]="activeTab === 'products'" (click)="activeTab = 'products'">📦 Productos</button>
+    <button class="tab-btn" [class.active]="activeTab === 'carts'" (click)="onTabChange('carts')">🛒 Carritos</button>
+    <button class="tab-btn" [class.active]="activeTab === 'orders'" (click)="onTabChange('orders')">📋 Pedidos</button>
+    <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="onTabChange('users')" *ngIf="rol === 'admin'">👥 Usuarios</button>
+    
+  </div>
+</div>
+
+<!-- CATEGORÍAS -->
+<div class="panel-section" *ngIf="activeTab === 'categories'">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <h2>Categorías</h2>
+        <p class="section-sub">{{ categories.length }} categorías registradas</p>
+      </div>
+      <button class="btn-primary" (click)="openCatModal()">+ Nueva categoría</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Nombre</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cat of categories">
+            <td class="td-id">{{ cat.id }}</td>
+            <td class="td-name">{{ cat.cod_name }}</td>
+            <td class="td-desc">{{ cat.des_category || '—' }}</td>
+            <td>
+              <span class="status-badge" [class.active]="cat.status === 1" [class.inactive]="cat.status === 0">
+                {{ cat.status === 1 ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
+            <td class="td-actions">
+              <button class="btn-icon" (click)="openCatModal(cat)" title="Editar">✏️</button>
+              <button class="btn-icon" (click)="toggleCatStatus(cat)" title="Cambiar estado">{{ cat.status === 1 ? '🔴' : '🟢' }}</button>
+              <button class="btn-icon" (click)="deleteCat(cat)" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="categories.length === 0">
+            <td colspan="5" class="empty-row">No hay categorías registradas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTOS -->
+<div class="panel-section" *ngIf="activeTab === 'products'">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <h2>Productos</h2>
+        <p class="section-sub">{{ products.length }} productos registrados</p>
+      </div>
+      <button class="btn-primary" (click)="openProdModal()">+ Nuevo producto</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Imagen</th><th>Producto</th><th>Categoría</th><th>Valor</th><th>IVA</th><th>Etiqueta</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prod of products">
+            <td class="td-id">{{ prod.id }}</td>
+            <td class="td-img">
+              <img *ngIf="prod.img_product" [src]="prod.img_product" alt="img" class="prod-thumb"/>
+              <span *ngIf="!prod.img_product" class="no-img">📦</span>
+            </td>
+            <td class="td-name">
+              <p class="prod-name">{{ prod.des_product }}</p>
+              <p class="prod-def">{{ prod.def_product }}</p>
+            </td>
+            <td>{{ prod.category_name }}</td>
+            <td class="td-price">{{ formatPrice(prod.cod_value) }}</td>
+            <td>{{ prod.cod_iva }}%</td>
+            <td>{{ getTagLabel(prod.cod_tag) }}</td>
+            <td>
+              <span class="status-badge" [class.active]="prod.status === 1" [class.agotado]="prod.status === 2">
+                {{ prod.status === 1 ? 'Disponible' : 'Agotado' }}
+              </span>
+            </td>
+            <td class="td-actions">
+              <button class="btn-icon" (click)="openProdModal(prod)" title="Editar">✏️</button>
+              <button class="btn-icon" (click)="toggleProdStatus(prod)" title="Cambiar estado">{{ prod.status === 1 ? '🔴' : '🟢' }}</button>
+              <button class="btn-icon" (click)="deleteProd(prod)" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="products.length === 0">
+            <td colspan="9" class="empty-row">No hay productos registrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- CARRITOS -->
+<div class="panel-section" *ngIf="activeTab === 'carts'">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><h2>Carritos activos</h2><p class="section-sub">{{ filteredCarts.length }} usuarios con productos</p></div>
+      <button class="btn-primary" (click)="loadCarts()">↻ Actualizar</button>
+    </div>
+
+    <!-- Buscador -->
+    <div class="cart-search-bar">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Buscar por nombre o usuario..." [(ngModel)]="cartSearch"/>
+    </div>
+
+    <div class="empty-row" *ngIf="filteredCarts.length === 0" style="text-align:center;padding:3rem;color:#aaa;">No hay carritos activos</div>
+
+    <div class="cart-cards" *ngIf="filteredCarts.length > 0">
+      <div class="cart-card" *ngFor="let cart of filteredCarts">
+        <div class="cart-card-header" (click)="toggleCart(cart.id_cart)">
+          <div class="cart-card-user">
+            <div class="user-avatar">{{ cart.nombre.charAt(0).toUpperCase() }}</div>
+            <div>
+              <p class="user-nombre">{{ cart.nombre }}</p>
+              <p class="user-username">&#64;{{ cart.username }}</p>
+            </div>
+          </div>
+          <div class="cart-card-meta">
+            <span class="cart-items-count">{{ cart.resumen.cantidad_items }} productos</span>
+            <span class="cart-total-val">{{ formatPrice(cart.resumen.total) }}</span>
+            <button class="btn-danger-sm" (click)="$event.stopPropagation(); clearUserCart(cart)">🗑️ Vaciar</button>
+            <span>{{ expandedCart === cart.id_cart ? '▲' : '▼' }}</span>
+          </div>
+        </div>
+        <div class="cart-card-body" *ngIf="expandedCart === cart.id_cart">
+          <table class="data-table">
+            <thead><tr><th>Producto</th><th>Cant.</th><th>Valor unit.</th><th>Subtotal</th><th>IVA</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of cart.items">
+                <td>{{ item.des_product }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ formatPrice(item.cod_value) }}</td>
+                <td>{{ formatPrice(item.subtotal_item) }}</td>
+                <td>{{ formatPrice(item.iva_item) }}</td>
+                <td class="td-price">{{ formatPrice(item.total_item) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="cart-card-resumen">
+            <span>Subtotal: <strong>{{ formatPrice(cart.resumen.subtotal) }}</strong></span>
+            <span>IVA: <strong>{{ formatPrice(cart.resumen.total_iva) }}</strong></span>
+            <span>Total: <strong>{{ formatPrice(cart.resumen.total) }}</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- PEDIDOS -->
+<div class="panel-section" *ngIf="activeTab === 'orders'">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><h2>Pedidos</h2><p class="section-sub">{{ filteredOrders.length }} pedidos</p></div>
+      <button class="btn-primary" (click)="loadOrders()">↻ Actualizar</button>
+    </div>
+
+    <div class="orders-filters">
+  <div class="orders-filters-top">
+    <div class="cart-search-bar orders-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Buscar por código, nombre o usuario..." [(ngModel)]="orderSearch"/>
+    </div>
+  </div>
+  <div class="orders-filters-bottom">
+    <button class="filter-btn" [class.active]="orderStatusFilter === 0" (click)="orderStatusFilter = 0">Todos</button>
+    <button class="filter-btn filter-pending"   [class.active]="orderStatusFilter === 1" (click)="orderStatusFilter = 1">Pendiente de pago</button>
+    <button class="filter-btn filter-confirmed" [class.active]="orderStatusFilter === 2" (click)="orderStatusFilter = 2">Confirmado</button>
+    <button class="filter-btn filter-shipped"   [class.active]="orderStatusFilter === 3" (click)="orderStatusFilter = 3">Enviado</button>
+    <button class="filter-btn filter-delivered" [class.active]="orderStatusFilter === 4" (click)="orderStatusFilter = 4">Entregado</button>
+    <button class="filter-btn filter-cancelled" [class.active]="orderStatusFilter === 5" (click)="orderStatusFilter = 5">Cancelado</button>
+  </div>
+</div>
+
+    <div class="empty-row" *ngIf="filteredOrders.length === 0" style="text-align:center;padding:3rem;color:#aaa;">No hay pedidos</div>
+
+    <div class="cart-cards" *ngIf="filteredOrders.length > 0">
+      <div class="cart-card" *ngFor="let order of filteredOrders">
+        <div class="cart-card-header" (click)="toggleOrder(order.id_order)">
+          <div class="cart-card-user">
+            <div class="user-avatar">{{ order.nombre.charAt(0).toUpperCase() }}</div>
+            <div>
+              <p class="user-nombre">{{ order.cod_order }}</p>
+              <p class="user-username">{{ order.nombre }} · &#64;{{ order.username }}</p>
+              <p class="user-username">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+          <div class="cart-card-meta">
+            <span class="order-status-badge" [class]="getStatusClass(order.status)">{{ order.status_label }}</span>
+            <span class="cart-total-val">{{ formatPrice(order.total) }}</span>
+            <select class="form-input" style="width:auto;padding:0.3rem 0.6rem;font-size:0.8rem"
+              [value]="order.status"
+              (change)="changeOrderStatus(order, +$any($event.target).value)"
+              (click)="$event.stopPropagation()">
+              <option [value]="1">Pendiente de pago</option>
+              <option [value]="2">Confirmado</option>
+              <option [value]="3">Enviado</option>
+              <option [value]="4">Entregado</option>
+              <option [value]="5">Cancelado</option>
+            </select>
+            <span>{{ expandedOrder === order.id_order ? '▲' : '▼' }}</span>
+          </div>
+        </div>
+        <div class="cart-card-body" *ngIf="expandedOrder === order.id_order">
+          <div style="display:flex;gap:2rem;margin-bottom:1rem;font-size:0.875rem;color:#666">
+            <span>📍 {{ order.def_address }}</span>
+            <span>💳 {{ order.payment_label }}</span>
+            <span *ngIf="order.notes">📝 {{ order.notes }}</span>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Producto</th><th>Cant.</th><th>Valor unit.</th><th>Subtotal</th><th>IVA</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of order.items">
+                <td>{{ item.des_product }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ formatPrice(item.cod_value) }}</td>
+                <td>{{ formatPrice(item.subtotal_item) }}</td>
+                <td>{{ formatPrice(item.iva_item) }}</td>
+                <td class="td-price">{{ formatPrice(item.total_item) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="cart-card-resumen">
+            <span>Subtotal: <strong>{{ formatPrice(order.subtotal) }}</strong></span>
+            <span>IVA: <strong>{{ formatPrice(order.total_iva) }}</strong></span>
+            <span>Total: <strong>{{ formatPrice(order.total) }}</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL CATEGORÍA -->
+<div class="modal-overlay" *ngIf="showCatModal" (click)="closeCatModal()"></div>
+<div class="modal" *ngIf="showCatModal" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>{{ editingCat ? 'Editar categoría' : 'Nueva categoría' }}</h3>
+    <button class="modal-close" (click)="closeCatModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="field-group">
+      <label class="field-label">Nombre <span class="required">*</span></label>
+      <input type="text" class="form-input" placeholder="Ej: Monitores" [(ngModel)]="catForm.cod_name"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Descripción</label>
+      <textarea class="form-input form-textarea" placeholder="Descripción opcional..." [(ngModel)]="catForm.des_category"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="closeCatModal()">Cancelar</button>
+    <button class="btn-primary" (click)="saveCat()">{{ editingCat ? 'Actualizar' : 'Crear' }}</button>
+  </div>
+</div>
+<!-- USUARIOS -->
+<div class="panel-section" *ngIf="activeTab === 'users'">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><h2>Usuarios</h2><p class="section-sub">{{ filteredUsers.length }} usuarios registrados</p></div>
+      <button class="btn-primary" (click)="openUserModal()">+ Nuevo usuario</button>
+    </div>
+    <div class="cart-search-bar" style="margin-bottom:1rem">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Buscar por nombre, usuario o rol..." [(ngModel)]="userSearch"/>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td class="td-id">{{ user.id }}</td>
+            <td class="td-name">{{ user.nombre }}</td>
+            <td>&#64;{{ user.username }}</td>
+            <td><span class="role-badge" [class]="getRolClass(user.rol)">{{ user.rol }}</span></td>
+            <td><span class="status-badge" [class.active]="user.status === 1" [class.inactive]="user.status === 0">{{ user.status === 1 ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="td-actions">
+              <button class="btn-icon" (click)="toggleUserStatus(user)" [title]="user.status === 1 ? 'Desactivar' : 'Activar'">{{ user.status === 1 ? '🔴' : '🟢' }}</button>
+              <button class="btn-icon" (click)="deleteUser(user)" title="Eliminar" *ngIf="user.rol !== 'admin'">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredUsers.length === 0"><td colspan="6" class="empty-row">No hay usuarios</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUARIO -->
+<div class="modal-overlay" *ngIf="showUserModal" (click)="closeUserModal()"></div>
+<div class="modal" *ngIf="showUserModal" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>Nuevo usuario</h3>
+    <button class="modal-close" (click)="closeUserModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="field-group">
+      <label class="field-label">Nombre completo <span class="required">*</span></label>
+      <input type="text" class="form-input" placeholder="Ej: Juan Pérez" [(ngModel)]="userForm.nombre"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Usuario <span class="required">*</span></label>
+      <input type="text" class="form-input" placeholder="Ej: juanperez" [(ngModel)]="userForm.username"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Contraseña <span class="required">*</span></label>
+      <input type="password" class="form-input" placeholder="Mínimo 4 caracteres" [(ngModel)]="userForm.password"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Rol</label>
+      <select class="form-input" [(ngModel)]="userForm.rol">
+        <option value="cliente">Cliente</option>
+        <option value="moderador">Moderador</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="closeUserModal()">Cancelar</button>
+    <button class="btn-primary" (click)="saveUser()">Crear usuario</button>
+  </div>
+</div>
+<!-- MODAL PRODUCTO -->
+<div class="modal-overlay" *ngIf="showProdModal" (click)="closeProdModal()"></div>
+<div class="modal modal-lg" *ngIf="showProdModal" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>{{ editingProd ? 'Editar producto' : 'Nuevo producto' }}</h3>
+    <button class="modal-close" (click)="closeProdModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+
+      <div class="field-group col-2">
+        <label class="field-label">Nombre del producto <span class="required">*</span></label>
+        <input type="text" class="form-input" placeholder="Ej: Monitor LG UltraWide 34&quot;" [(ngModel)]="prodForm.des_product"/>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Categoría <span class="required">*</span></label>
+        <select class="form-input" [(ngModel)]="prodForm.id_category">
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.cod_name }}</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Estado</label>
+        <select class="form-input" [(ngModel)]="prodForm.status">
+          <option [value]="1">Disponible</option>
+          <option [value]="2">Agotado</option>
+        </select>
+      </div>
+
+      <div class="field-group col-2">
+        <label class="field-label">Descripción / Especificaciones</label>
+        <textarea class="form-input form-textarea" placeholder="Ej: Panel IPS 3440x1440, 144Hz, HDR10" [(ngModel)]="prodForm.def_product"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Valor unitario (COP) <span class="required">*</span></label>
+        <input
+          type="number"
+          class="form-input"
+          placeholder="Ej: 1850000"
+          min="0"
+          step="1"
+          [(ngModel)]="prodForm.cod_value"
+        />
+        <small style="color:#aaa; font-size:0.75rem; margin-top:4px; display:block;">
+          Ingresa el valor sin puntos ni comas. Ej: 1850000
+        </small>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">IVA (%)</label>
+        <input type="number" class="form-input" placeholder="19" min="0" max="100" step="0.01" [(ngModel)]="prodForm.cod_iva"/>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Etiqueta</label>
+        <select class="form-input" [(ngModel)]="prodForm.cod_tag">
+          <option [value]="1">Normal</option>
+          <option [value]="2">Nuevo</option>
+          <option [value]="3">Más vendido</option>
+          <option [value]="4">Oferta</option>
+          <option [value]="5">Top</option>
+        </select>
+      </div>
+
+      <div class="field-group col-2">
+        <label class="field-label">Imagen del producto</label>
+        <div class="img-upload">
+          <input type="file" accept="image/*" (change)="onImageChange($event)" id="imgInput" class="img-input"/>
+          <label for="imgInput" class="img-label">
+            <span *ngIf="!imgPreview">📁 Seleccionar imagen (máx. 2MB)</span>
+            <img *ngIf="imgPreview" [src]="imgPreview" class="img-preview" alt="preview"/>
+          </label>
+          <button *ngIf="imgPreview" class="btn-remove-img" (click)="prodForm.img_product=''; imgPreview=''">✕ Quitar imagen</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="closeProdModal()">Cancelar</button>
+    <button class="btn-primary" (click)="saveProd()">{{ editingProd ? 'Actualizar' : 'Crear' }}</button>
+  </div>
+</div>
